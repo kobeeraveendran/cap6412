@@ -1,0 +1,10 @@
+if capsules A, B, and C learn different features, why would they want to overlap?
+Given some image/video/etc. shouldn't only one have such a high activation at a time?
+
+At test time, per frame, how is performance evaluated? Is it an area of similarity + some 
+localization? (How is the second metric measured, since the regions are not boxes and can be arbitary?)
+
+(2+1)D convolution:
+> 2d convolution for the frame, followed by a 1d convolution through time
+
+votes are stacked, A, B, and C are different things
