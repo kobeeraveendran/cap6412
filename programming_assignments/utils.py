@@ -6,8 +6,9 @@ import numpy as np
 import os
 import cv2
 import re
-from PIL import Image
-
+import imageio
+import matplotlib.pyplot as plt
+from sklearn.utils import shuffle
 #from tf.compat.v1 import ConfigProto
 
 def load_data():
@@ -61,7 +62,7 @@ def load_data_limited(num_samples):
 
     # load training set
 
-    train_x = np.zeros(shape = (200 * num_samples, 3, 64, 64), dtype = 'uint8')
+    train_x = np.zeros(shape = (200 * num_samples, 64, 64, 3), dtype = 'uint8')
     train_y = np.zeros(shape = (200 * num_samples), dtype = 'uint8')
 
     train_dir_path = 'tiny-imagenet-200/train/'
@@ -74,7 +75,9 @@ def load_data_limited(num_samples):
         label_to_class_index[subdir] = i
 
         for img in os.listdir(imgs_path):
-            sample = np.asarray(Image.open(os.path.join(imgs_path, img)))
+            sample = cv2.imread(os.path.join(imgs_path, img))
+            cvt_sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
+            sample = np.asarray(cvt_sample)
 
             train_x[sample_num] = sample
             train_y[sample_num] = i
@@ -82,7 +85,7 @@ def load_data_limited(num_samples):
 
     # load test set (using val instead)
 
-    test_x = np.zeros(shape = (200 * 50, 3, 64, 64), dtype = 'uint8')
+    test_x = np.zeros(shape = (200 * 50, 64, 64, 3), dtype = 'uint8')
     test_y = np.zeros(shape = (200 * 50), dtype = 'uint8')
 
     test_dir_path = 'tiny-imagenet-200/val/images'
@@ -100,13 +103,30 @@ def load_data_limited(num_samples):
 
     sample_num = 0
     for i, img in enumerate(os.listdir(test_dir_path)):
-        sample = np.asarray(Image.open(os.path.join(test_dir_path, img)))
+        sample = cv2.imread(os.path.join(test_dir_path, img))
+        cvt_sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
+        sample = np.asarray(cvt_sample)
 
         test_x[sample_num] = sample
         test_y[sample_num] = int(label_to_class_index[test_label_mapping[img]])
+
+        sample_num += 1
+
+    train_x, train_y = shuffle(train_x, train_y)
+    test_x, test_y = shuffle(test_x, test_y)
 
 
     return train_x, train_y, test_x, test_y
 
 if __name__ == '__main__':
-    train, test, test_labels = load_data()
+    #train, test, test_labels = load_data()
+
+    train_x, train_y, test_x, test_y = load_data_limited(num_samples = 500)
+
+    print(np.shape(train_x))
+    print(np.shape(train_y))
+    print(np.shape(test_x))
+    print(np.shape(test_y))
+    print('\n\n')
+
+    print('Label for sample 19: ', test_y[19])

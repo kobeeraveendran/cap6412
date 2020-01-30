@@ -13,7 +13,7 @@ from keras.models import Model
 from keras.layers import GlobalAveragePooling2D
 from keras import backend as K
 
-from utils import load_data
+from utils import load_data, load_data_limited
 
 from tensorflow.compat.v1 import ConfigProto, InteractiveSession
 
@@ -24,12 +24,12 @@ config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config = config)
 
-def train_model(model, train):
+def train_model(model, train_x, train_y):
 
     model.compile(optimizer = Adam(), loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
     start = time.time()
-    model.fit_generator(train, epochs = 20, verbose = 1)
+    model.fit(train_x, train_y, epochs = 15, verbose = 1, batch_size = 128)
     training_time = time.time() - start
 
     print('\n\nTotal training time taken (mins:sec): {0}:{1:.2f}\n\n'.format(int(training_time // 60), training_time % 60))
@@ -48,7 +48,7 @@ def predict(model, test_set, test_labels):
 
     print('Num predictions: ', num_test)
 
-    test_acc = accuracy(test_labels, pred_class_indices)
+    test_acc = accuracy(np.argmax(test_labels, axis = 1), pred_class_indices)
 
     print('\nTest set accuracy: {}'.format(np.sum(test_acc) / num_test))
 
@@ -110,16 +110,19 @@ def model_6conv():
 if __name__ == "__main__":
 
     # load train and test set
-    train, test, test_labels = load_data()
+    train_x, train_y, test_x, test_y = load_data_limited(500)
+
+    train_y = keras.utils.to_categorical(train_y)
+    test_y = keras.utils.to_categorical(test_y)
 
     #label_map = {v:k for k, v in train.class_indices.items()}
 
     # 3 convolutional blocks
-    '''
+    
     conv3 = model_3conv()
-    trained_model = train_model(conv3, train)
-    predict(trained_model, test, test_labels)
-    '''
+    trained_model = train_model(conv3, train_x, train_y)
+    predict(trained_model, test_x, test_y)
+    
 
     # 6 convolutional blocks
     '''
@@ -131,7 +134,7 @@ if __name__ == "__main__":
     
     # InceptionV3 pretrained model fine-tuning
 
-    
+    '''
     # create the base pre-trained model
     base_model = InceptionV3(weights='imagenet', include_top=False, input_tensor = Input(shape = (299, 299, 3)))
 
@@ -183,4 +186,4 @@ if __name__ == "__main__":
     model.fit_generator(train, epochs = 10, verbose = 1)
 
     predict(model, test, test_labels)
-    
+    '''
