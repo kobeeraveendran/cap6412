@@ -107,6 +107,59 @@ def model_6conv():
 
     return model
 
+def model_12conv():
+
+    model = Sequential()
+    model.add(Conv2D(64, (3, 3), input_shape = (64, 64, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(128, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(256, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(512, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(1024, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(2048, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(1024, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(512, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(256, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(128, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Conv2D(64, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
+    model.add(ZeroPadding2D())
+
+    model.add(Flatten())
+    model.add(Dense(1024, activation = 'relu'))
+    model.add(Dense(200, activation = 'softmax'))
+
+    return model
+
 if __name__ == "__main__":
 
     # load train and test set
@@ -130,10 +183,15 @@ if __name__ == "__main__":
     trained_model = train_model(conv6, train_x, train_y)
     predict(trained_model, test_x, test_y)
     '''
+
+    # 12 convolutional blocks
+    conv12 = model_12conv()
+    trained_model = train_model(conv12, train_x, train_y)
+    predict(trained_model, test_x, test_y)
     
     # InceptionV3 pretrained model fine-tuning
 
-    
+    '''
     # create the base pre-trained model
     base_model = InceptionV3(weights='imagenet', include_top=False, input_tensor = Input(shape = (128, 128, 3)))
 
@@ -185,4 +243,4 @@ if __name__ == "__main__":
     model.fit(train_x, train_y, epochs = 10, batch_size = 128, verbose = 1)
 
     predict(model, test_x, test_y)
-    
+    '''

@@ -143,4 +143,4 @@ if __name__ == '__main__':
     print(np.shape(test_y))
     print('\n\n')
 
-    print('Label for sample 19: ', test_y[19])
+    print('Label for sample 0: ', test_y[0])
