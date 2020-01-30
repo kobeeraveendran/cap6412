@@ -27,6 +27,15 @@ def load_data():
 
     test_set = np.array(test_set)
 
+    test_labels = []
+    file = open('tiny-imagenet-200/val/val_annotations.txt', 'r')
+
+    for line in file:
+        img_label = line.split('\t')[1]
+        test_labels.append(img_label)
+
+    file.close()
+
     #test_gen = datagen.flow_from_directory('tiny-imagenet-200/val/images', target_size = (64, 64))
 
-    return train_gen, test_set
+    return train_gen, test_set, test_labels
