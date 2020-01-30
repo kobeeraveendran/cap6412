@@ -118,25 +118,24 @@ if __name__ == "__main__":
     #label_map = {v:k for k, v in train.class_indices.items()}
 
     # 3 convolutional blocks
-    
+    '''
     conv3 = model_3conv()
     trained_model = train_model(conv3, train_x, train_y)
     predict(trained_model, test_x, test_y)
-    
+    '''
 
     # 6 convolutional blocks
     '''
     conv6 = model_6conv()
-    trained_model = train_model(conv6, train)
-    predict(trained_model, test, test_labels)
+    trained_model = train_model(conv6, train_x, train_y)
+    predict(trained_model, test_x, test_y)
     '''
-
     
     # InceptionV3 pretrained model fine-tuning
 
-    '''
+    
     # create the base pre-trained model
-    base_model = InceptionV3(weights='imagenet', include_top=False, input_tensor = Input(shape = (299, 299, 3)))
+    base_model = InceptionV3(weights='imagenet', include_top=False, input_tensor = Input(shape = (128, 128, 3)))
 
     # add a global spatial average pooling layer
     x = base_model.output
@@ -158,7 +157,7 @@ if __name__ == "__main__":
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics = ['accuracy'])
 
     # train the model on the new data for a few epochs
-    model.fit_generator(train, epochs = 5, verbose = 1)
+    model.fit(train_x, train_y, epochs = 5, verbose = 1, batch_size = 128)
 
     # at this point, the top layers are well trained and we can start fine-tuning
     # convolutional layers from inception V3. We will freeze the bottom N layers
@@ -183,7 +182,7 @@ if __name__ == "__main__":
 
     # we train our model again (this time fine-tuning the top 2 inception blocks
     # alongside the top Dense layers
-    model.fit_generator(train, epochs = 10, verbose = 1)
+    model.fit(train_x, train_y, epochs = 10, batch_size = 128, verbose = 1)
 
-    predict(model, test, test_labels)
-    '''
+    predict(model, test_x, test_y)
+    

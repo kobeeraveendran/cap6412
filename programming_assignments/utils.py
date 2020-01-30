@@ -62,7 +62,11 @@ def load_data_limited(num_samples):
 
     # load training set
 
-    train_x = np.zeros(shape = (200 * num_samples, 64, 64, 3), dtype = 'uint8')
+    # custom
+    #train_x = np.zeros(shape = (200 * num_samples, 64, 64, 3), dtype = 'uint8')
+
+    # inception
+    train_x = np.zeros(shape = (200 * num_samples, 128, 128, 3), dtype = 'uint8')
     train_y = np.zeros(shape = (200 * num_samples), dtype = 'uint8')
 
     train_dir_path = 'tiny-imagenet-200/train/'
@@ -77,6 +81,9 @@ def load_data_limited(num_samples):
         for img in os.listdir(imgs_path):
             sample = cv2.imread(os.path.join(imgs_path, img))
             cvt_sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
+
+            # inception
+            cvt_sample = cv2.resize(cvt_sample, (128, 128))
             sample = np.asarray(cvt_sample)
 
             train_x[sample_num] = sample
@@ -85,7 +92,11 @@ def load_data_limited(num_samples):
 
     # load test set (using val instead)
 
-    test_x = np.zeros(shape = (200 * 50, 64, 64, 3), dtype = 'uint8')
+    # custom
+    #test_x = np.zeros(shape = (200 * 50, 64, 64, 3), dtype = 'uint8')
+
+    # inception
+    test_x = np.zeros(shape = (200 * 50, 128, 128, 3), dtype = 'uint8')
     test_y = np.zeros(shape = (200 * 50), dtype = 'uint8')
 
     test_dir_path = 'tiny-imagenet-200/val/images'
@@ -105,6 +116,9 @@ def load_data_limited(num_samples):
     for i, img in enumerate(os.listdir(test_dir_path)):
         sample = cv2.imread(os.path.join(test_dir_path, img))
         cvt_sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
+        
+        # inception
+        cvt_sample = cv2.resize(cvt_sample, (128, 128))
         sample = np.asarray(cvt_sample)
 
         test_x[sample_num] = sample
