@@ -68,8 +68,6 @@ def load_data_limited(num_samples = 500, finetune = False):
             for img in os.listdir(imgs_path)[:num_samples]:
                 sample = cv2.imread(os.path.join(imgs_path, img))
                 cvt_sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
-
-                #cvt_sample = cv2.resize(cvt_sample, (128, 128))
                 
                 sample = np.asarray(cvt_sample)
 
@@ -77,8 +75,7 @@ def load_data_limited(num_samples = 500, finetune = False):
                 train_y[sample_num] = i
                 sample_num += 1
 
-    # load test set (using val instead)
-    #test_x = np.zeros(shape = (200 * 50, 128, 128, 3), dtype = 'uint8')
+        # load test set (using val instead)
 
         test_x = np.zeros(shape = (200 * 50, 64, 64, 3), dtype = 'uint8')
 

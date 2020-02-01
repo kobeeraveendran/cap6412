@@ -36,7 +36,7 @@ def train_model(model, train_x, train_y, batch_size = 64):
     model.compile(optimizer = Adam(), loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
     start = time.time()
-    model.fit(train_x, train_y, epochs = 15, verbose = 1, batch_size = batch_size)
+    model.fit(train_x, train_y, epochs = 15, verbose = 1, batch_size = batch_size, validation_split = 0.1)
     training_time = time.time() - start
 
     print('\n\nTotal training time taken (mins:sec): {0}:{1:.2f}\n\n'.format(int(training_time // 60), training_time % 60))
@@ -45,9 +45,10 @@ def train_model(model, train_x, train_y, batch_size = 64):
 
 def predict(model, test_set, test_labels):
 
+    print('\n\nPredicting on test set...')
     preds = model.predict(test_set, verbose = 1)
 
-    print('Predicted Class Indices: \n')
+    print('\nPredicted Class Indices: \n')
     pred_class_indices = np.argmax(preds, axis = 1)
     print(pred_class_indices)
 
@@ -59,7 +60,7 @@ def predict(model, test_set, test_labels):
 
     print('\nTest set accuracy: {0:.2f}%'.format(np.sum(test_acc) / num_test * 100))
 
-
+# ~21% test set accuracy
 def model_3conv(train_x, train_y, test_x, test_y):
 
     model = Sequential()
@@ -85,12 +86,13 @@ def model_3conv(train_x, train_y, test_x, test_y):
     print(model.summary())
         
     print('\n\n3 Conv layer model')
-    trained_model = train_model(model, train_x, train_y, 256)
+    trained_model = train_model(model, train_x, train_y, batch_size = 256)
     print('\n3 Conv Layer model predictions:')
     predict(trained_model, test_x, test_y)
 
     #plot_model(model, to_file = 'figs/3conv_model.png')
 
+# ~31% test set accuracy
 def model_6conv(train_x, train_y, test_x, test_y):
 
     model = Sequential()
@@ -159,37 +161,37 @@ def model_9conv(train_x, train_y, test_x, test_y):
     model.add(ZeroPadding2D())
 
     model.add(Conv2D(512, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D((1, 1), strides = (2, 2), padding = 'same'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
     model.add(BatchNormalization())
     model.add(ZeroPadding2D())
 
     model.add(Conv2D(1024, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D((1, 1), strides = (2, 2), padding = 'same'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
     model.add(BatchNormalization())
     model.add(ZeroPadding2D())
 
     model.add(Conv2D(512, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D((1, 1), strides = (2, 2), padding = 'same'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
     model.add(BatchNormalization())
     model.add(ZeroPadding2D())
 
     model.add(Conv2D(256, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D((1, 1), strides = (2, 2), padding = 'same'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
     model.add(BatchNormalization())
     model.add(ZeroPadding2D())
 
     model.add(Conv2D(128, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D((1, 1), strides = (2, 2), padding = 'same'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
     model.add(BatchNormalization())
     model.add(ZeroPadding2D())
 
     model.add(Conv2D(64, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D((1, 1), strides = (2, 2), padding = 'same'))
+    model.add(MaxPooling2D(strides = (2, 2), padding = 'same'))
     model.add(BatchNormalization())
     model.add(ZeroPadding2D())
 
     model.add(Flatten())
-    model.add(Dense(1024, activation = 'relu'))
+    model.add(Dense(512, activation = 'relu'))
     model.add(Dense(200, activation = 'softmax'))
 
     print(model.summary())
@@ -253,18 +255,20 @@ if __name__ == "__main__":
         model_9conv(train_x, train_y, test_x, test_y)
 
     else:
-        
+        # finetuned model - test set accuracy on SVHN: ~94%
+        # based on the sample finetuning code provided by keras at
+        # https://keras.io/applications/
         base_model = VGG16(weights = 'imagenet', include_top = False, input_tensor = Input(shape = (128, 128, 3)))
 
         print(base_model.summary())
 
-        head = base_model.output
-        head = Flatten(name = 'flatten')(head)
-        head = Dense(512, activation = 'relu')(head)
-        head = Dropout(0.5)(head)
-        head = Dense(10, activation = 'softmax')(head)
+        new_top = base_model.output
+        new_top = GlobalAveragePooling2D()(new_top)
+        new_top = Dense(512, activation = 'relu')(new_top)
+        new_top = Dropout(0.5)(new_top)
+        new_top = Dense(10, activation = 'softmax')(new_top)
 
-        model = Model(inputs = base_model.input, outputs = head)
+        model = Model(inputs = base_model.input, outputs = new_top)
 
         # freeze vgg16 layers to train new output layers
         for layer in base_model.layers:
@@ -276,76 +280,29 @@ if __name__ == "__main__":
 
         print('Training new output layers...')
 
-        model.fit(train_x, train_y, batch_size = 64, epochs = 10, validation_split = 0.2)
+        start = time.time()
+        model.fit(train_x, train_y, batch_size = 64, epochs = 5, validation_split = 0.2)
+        new_output_train_duration = time.time() - start
+
+        print('Training time for re-initializing output: {0}:{1:.2f}'.format(int(new_output_train_duration // 60), new_output_train_duration % 60))
 
         for layer in base_model.layers[:15]:
             layer.trainable = True
 
-        # now train with both the new output layers and the last conv layers of VGG
+        # train with both the new output layers and the early conv layers of VGG
         model.compile(optimizer = SGD(learning_rate = 1e-4, momentum = 0.9), 
                       loss = 'categorical_crossentropy', 
                       metrics = ['accuracy'])
         
-        model.fit(train_x, train_y, batch_size = 64, epochs = 20, validation_split = 0.2)
+        start2 = time.time()
+        model.fit(train_x, train_y, batch_size = 64, epochs = 10, validation_split = 0.2)
+        end = time.time()
 
         print(model.summary())
 
+        print('Training time for output + retrained conv layers: {0}:{1:.2f}'.format(int((end - start2) // 60), (end - start2) % 60))
+
+        print('Total training time for finetuned VGG16: {0}:{1:.2f}'.format(int((end - start) // 60), (end - start) % 60))
+
         predict(model, test_x, test_y)
         
-
-    
-        # InceptionV3 pretrained model fine-tuning
-
-        '''
-        # create the base pre-trained model
-        base_model = InceptionV3(weights='imagenet', include_top=False, input_tensor = Input(shape = (128, 128, 3)))
-
-        # add a global spatial average pooling layer
-        x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        x = Dense(1024, activation='relu')(x)
-        # and a logistic layer -- let's say we have 200 classes
-        predictions = Dense(10, activation='softmax')(x)
-
-        # this is the model we will train
-        model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        for layer in base_model.layers:
-            layer.trainable = False
-
-        # compile the model (should be done *after* setting layers to non-trainable)
-        model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics = ['accuracy'])
-
-        # train the model on the new data for a few epochs
-        model.fit(train_x, train_y, epochs = 5, verbose = 1, batch_size = 128)
-
-        # at this point, the top layers are well trained and we can start fine-tuning
-        # convolutional layers from inception V3. We will freeze the bottom N layers
-        # and train the remaining top layers.
-
-        # let's visualize layer names and layer indices to see how many layers
-        # we should freeze:
-        for i, layer in enumerate(base_model.layers):
-            print(i, layer.name)
-
-        # we chose to train the top 2 inception blocks, i.e. we will freeze
-        # the first 249 layers and unfreeze the rest:
-        for layer in model.layers[:249]:
-            layer.trainable = False
-        for layer in model.layers[249:]:
-            layer.trainable = True
-
-        # we need to recompile the model for these modifications to take effect
-        # we use SGD with a low learning rate
-        from keras.optimizers import SGD
-        model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics = ['accuracy'])
-
-        # we train our model again (this time fine-tuning the top 2 inception blocks
-        # alongside the top Dense layers
-        model.fit(train_x, train_y, epochs = 10, batch_size = 128, verbose = 1)
-
-        predict(model, test_x, test_y)
-        '''
