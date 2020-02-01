@@ -6,6 +6,7 @@ import numpy as np
 import os
 import cv2
 import re
+import imageio
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 from scipy.io import loadmat
@@ -13,7 +14,7 @@ from skimage.transform import resize
 
 #from tf.compat.v1 import ConfigProto
 
-def load_data_limited(num_samples = 500, finetune = False):
+def load_data_limited(num_samples, finetune = False):
 
     # load training set
 
