@@ -1,3 +1,8 @@
+# Kobee Raveendran
+# University of Central Florida
+# CAP6412 - Advanced Computer Vision
+# Programming Assignment 1
+
 import tensorflow as tf
 from tensorflow import keras
 
@@ -12,6 +17,8 @@ from scipy.io import loadmat
 from skimage.transform import resize
 
 #from tf.compat.v1 import ConfigProto
+
+# TODO: add documentation/clarity
 
 def load_data_limited(num_samples = 500, finetune = False):
 

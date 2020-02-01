@@ -1,3 +1,7 @@
+# Kobee Raveendran
+# University of Central Florida
+# CAP6412 - Programming Assignment 1
+
 import tensorflow as tf
 from tensorflow import keras
 
@@ -26,6 +30,8 @@ import time
 import argparse
 import os
 import sys
+
+# TODO: add more documentation for functions, clarity
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
