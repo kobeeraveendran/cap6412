@@ -42,7 +42,7 @@ def train_model(model, train_x, train_y, batch_size = 64):
     model.compile(optimizer = Adam(), loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
     start = time.time()
-    model.fit(train_x, train_y, epochs = 15, verbose = 1, batch_size = batch_size, validation_split = 0.1)
+    model.fit(train_x, train_y, epochs = 15, verbose = 2, batch_size = batch_size, validation_split = 0.1)
     training_time = time.time() - start
 
     print('\n\nTotal training time taken (mins:sec): {0}:{1:.2f}\n\n'.format(int(training_time // 60), training_time % 60))
@@ -287,7 +287,7 @@ if __name__ == "__main__":
         print('Training new output layers...')
 
         start = time.time()
-        model.fit(train_x, train_y, batch_size = 64, epochs = 5, validation_split = 0.2)
+        model.fit(train_x, train_y, batch_size = 64, verbose = 2, epochs = 5, validation_split = 0.2)
         new_output_train_duration = time.time() - start
 
         print('Training time for re-initializing output: {0}:{1:.2f}'.format(int(new_output_train_duration // 60), new_output_train_duration % 60))
@@ -301,7 +301,7 @@ if __name__ == "__main__":
                       metrics = ['accuracy'])
         
         start2 = time.time()
-        model.fit(train_x, train_y, batch_size = 64, epochs = 10, validation_split = 0.2)
+        model.fit(train_x, train_y, batch_size = 64, verbose = 2, epochs = 10, validation_split = 0.2)
         end = time.time()
 
         print(model.summary())
