@@ -1,5 +1,5 @@
 papers_code/
-programming_assignments/tiny-imagenet-200/
-programming_assignments/svhn/
+programming_assignments/pa1/tiny-imagenet-200/
+programming_assignments/pa1/svhn/
 .vscode/
 __pycache__/
