@@ -1,0 +1,11 @@
+estimate 3d structure from 2d image
+
+related works:
+method 1 - use CNNs to map source img to target img/viewpoints
+
+problem with GAN approaches - don't represent 3d structures, so they don't generalize well
+
+camera pose: 
+- coordinate convolution (?)
+    - adds 2 channels to conv filter for storing coordinates
+        - necessary bc cnns are spatially-invariant
